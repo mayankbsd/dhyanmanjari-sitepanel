@@ -3,8 +3,8 @@ class ApiConstants {
 
   //static  String baseUrl = 'https://iariya.com/api/';
   //static  String baseUrl = 'http://192.168.1.6:5000/api';
- // static  String baseUrl = 'https://dhayanmanjari.vercel.app/api';
-  static  String baseUrl = 'http://localhost:5000/api';
+  static  String baseUrl = 'https://dhayanmanjari.vercel.app/api';
+  //static  String baseUrl = 'http://localhost:5000/api';
   static  String token ="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRlZmF1bHRfYXBwIiwiaWF0IjoxNzcyOTUxMzM5LCJleHAiOjE4NTkyNjQ5Mzl9.ayv3UPbmynwC2Ij8K83hrU-OvCxFXSPxBmD5XOSJQwA";
 
 
