@@ -30,6 +30,7 @@ class ApiConstants {
   static final String review = '$baseUrl/add-review';
   static final String choghadiya = '$baseUrl/choghadiya/today';
   static final String panchang = '$baseUrl/panchang/today';
+  static final String shloka = "$baseUrl/api/shloka";
 
 
 

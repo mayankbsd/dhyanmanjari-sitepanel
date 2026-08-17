@@ -43,6 +43,9 @@ dependencies:
   shared_preferences: ^2.5.4
   # pubspec.yaml mein add karo
   image_picker: ^1.0.7
+  youtube_player_flutter: ^9.0.4
+  http_parser: ^4.1.2
+  file_picker: ^8.0.0
 
 dev_dependencies:
   flutter_test:

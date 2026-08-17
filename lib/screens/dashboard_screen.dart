@@ -1,13 +1,17 @@
 import 'dart:convert';
+import 'package:dhyanmanjari_sitepanel/screens/add_shloka_page.dart';
 import 'package:dhyanmanjari_sitepanel/screens/notification_page.dart';
+import 'package:dhyanmanjari_sitepanel/screens/status_template_management_page.dart';
 import 'package:dhyanmanjari_sitepanel/screens/user_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../network/api_service.dart';
+import 'add_banner_screen.dart';
 import 'add_category_page.dart';
 import 'add_chalisa_page.dart';
 import 'add_aarti_page.dart';
+import 'add_mandir_screen.dart';
 import 'add_mantra_page.dart';
 import 'add_vishesh_sangrh.dart';
 
@@ -31,7 +35,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     "Mantras",
     "Vishesh Sangrh",
     "Categories",  // ← ADD
+    "Sloka", // ← ADD
     "Notifications", // ← ADD
+    "Banners",   // ← NEW
+    "Mandir",    // ← NEW
+    "Status & Template", // NEW
 
   ];
 
@@ -44,34 +52,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
 
           /// ================= SIDEBAR =================
-          Container(
-            width: 230,
-            color: isDark ? Colors.grey[900] : Colors.deepPurple,
-            child: Column(
-              children: [
+        /// ================= SIDEBAR =================
+        Container(
+        width: 230,
+        color: isDark ? Colors.grey[900] : Colors.deepPurple,
+        child: Column(
+          children: [
 
-                const SizedBox(height: 40),
+            const SizedBox(height: 40),
 
-                const Icon(Icons.admin_panel_settings,
-                    color: Colors.white, size: 50),
+            const Icon(
+              Icons.admin_panel_settings,
+              color: Colors.white,
+              size: 50,
+            ),
 
-                const SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-                const Text(
-                  "Admin Panel",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
-                ),
+            const Text(
+              "Admin Panel",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
 
-                const SizedBox(height: 30),
+            const SizedBox(height: 30),
 
-                ...sections.map(
+            /// ================= SCROLLABLE MENU =================
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: sections.map(
                       (e) => ListTile(
+                    leading: Icon(
+                      _getSectionIcon(e),
+                      color: Colors.white70,
+                    ),
                     title: Text(
                       e,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
                     selected: selectedSection == e,
                     selectedTileColor: Colors.white24,
@@ -81,27 +104,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       });
                     },
                   ),
-                ),
-
-                const Spacer(),
-
-                SwitchListTile(
-                  value: isDark,
-                  onChanged: (val) {
-                    setState(() {
-                      isDark = val;
-                    });
-                  },
-                  title: const Text(
-                    "Dark Mode",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-              ],
+                ).toList(),
+              ),
             ),
-          ),
+
+            /// ================= DARK MODE =================
+            SwitchListTile(
+              value: isDark,
+              onChanged: (val) {
+                setState(() {
+                  isDark = val;
+                });
+              },
+              title: const Text(
+                "Dark Mode",
+                style: TextStyle(color: Colors.white),
+              ),
+              activeColor: Colors.white,
+            ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
 
           /// ================= MAIN CONTENT =================
           Expanded(
@@ -141,6 +166,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _statCard("Vishesh", "granth", Icons.collections_bookmark, Colors.red),
             _statCard("Categories", "category", Icons.category, Colors.teal),
             _statCard("Notifications", "notifications", Icons.notifications, Colors.purple),
+            _statCard("Sloka", "sloka", Icons.notifications, Colors.yellowAccent),
+            _statCard("Banners", "banner", Icons.image, Colors.pink),
+            _statCard("Mandir", "mandir", Icons.temple_hindu, Colors.brown),
+            _statCard(
+              "Status & Template",
+              "statusTemplate",
+              Icons.style,
+              Colors.deepOrange,
+            ),
           ],
         ),
       ],
@@ -233,7 +267,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (section == "Vishesh Sangrh") endpoint = "granths";
     if (section == "Categories") endpoint = "categories";
     if (section == "Notifications") endpoint = "notifications";
-
+    if (section == "Sloka") endpoint = "sloka";
+    if (section == "Banners") endpoint = "banner";   // ← NEW
+    if (section == "Mandir") endpoint = "mandir";    // ← NEW
+    if (section == "Status & Template") {
+      return StatusTemplateManagementPage(
+        isDark: isDark,
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -304,7 +345,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     MaterialPageRoute(builder: (_) =>  SendNotificationPage()),
                   );
                 }
+                if (section == "Sloka") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) =>  AddShlokaPage()),
+                  );
+                }
+                if (section == "Banners") {                                    // ← NEW
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AddBannerPage()));
+                }
+                if (section == "Mandir") {                                     // ← NEW
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AddMandirPage()));
+                }
               },
+
             )
           ],
         ),
@@ -483,7 +537,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               // ── Normal edit/delete ──
                               IconButton(
                                 icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () {},
+                                onPressed: () {
+                                  if (section == "Aartis") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => AddAartiPage(
+                                          isDark: isDark,
+                                          editData: data,
+                                        ),
+                                      ),
+                                    ).then((result) {
+                                      if (result == true) {
+                                        setState(() {});
+                                      }
+                                    });
+                                  }
+                                  if (section == "Chalisas") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => AddChalisaPage(
+                                          isDark: isDark,
+                                          editData: data,
+                                        ),
+                                      ),
+                                    ).then((result) {
+                                      if (result == true) {
+                                        setState(() {});
+                                      }
+                                    });
+                                  }
+                                  if (section == "Vishesh Sangrh") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => AddVisheshSangrahPage(
+                                          isDark: isDark,
+                                          editData: data,
+                                        ),
+                                      ),
+                                    ).then((result) {
+                                      if (result == true) {
+                                        setState(() {});
+                                      }
+                                    });
+                                  }
+                                },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),
@@ -544,5 +644,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
       },
     );
+  }
+  IconData _getSectionIcon(String section) {
+    switch (section) {
+      case "Dashboard":
+        return Icons.dashboard;
+
+      case "Users":
+        return Icons.people;
+
+      case "Chalisas":
+        return Icons.menu_book;
+
+      case "Aartis":
+        return Icons.auto_awesome;
+
+      case "Mantras":
+        return Icons.self_improvement;
+
+      case "Vishesh Sangrh":
+        return Icons.collections_bookmark;
+
+      case "Categories":
+        return Icons.category;
+
+      case "Sloka":
+        return Icons.format_quote;
+
+      case "Notifications":
+        return Icons.notifications;
+
+      case "Banners":
+        return Icons.image;
+
+      case "Mandir":
+        return Icons.temple_hindu;
+
+      case "Status & Template":
+        return Icons.style;
+
+      default:
+        return Icons.circle;
+    }
   }
 }
