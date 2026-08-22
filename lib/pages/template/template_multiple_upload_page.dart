@@ -498,7 +498,7 @@ class _TemplateMultipleUploadPageState
         // multiple times.
         request.files.add(
           http.MultipartFile.fromBytes(
-            'media',
+            'image',
             bytes,
             filename: file.name,
           ),
