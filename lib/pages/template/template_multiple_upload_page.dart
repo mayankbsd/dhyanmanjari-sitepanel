@@ -363,7 +363,7 @@ class _TemplateMultipleUploadPageState
       // =====================================================
 
       final uri = Uri.parse(
-        '${ApiConstants.baseUrl}/template/upload',
+        '${ApiConstants.baseUrl}/template/upload-multiple',
       );
 
       debugPrint(
