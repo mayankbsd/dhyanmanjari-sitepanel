@@ -8,6 +8,7 @@ import '../models/status_model.dart';
 import '../network/api_service.dart';
 import '../pages/status/status_form_page.dart';
 import '../pages/template/template_form_page.dart';
+import '../pages/template/template_multiple_upload_page.dart';
 
 class StatusTemplateManagementPage extends StatefulWidget {
   const StatusTemplateManagementPage({
@@ -298,14 +299,8 @@ class _StatusTemplateManagementPageState
     if (selectedTab == 0) {
       _showStatusUploadTypeDialog();
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const TemplateFormPage(),
-        ),
-      ).then((_) {
-        loadItems();
-      });
+      _showTemplateUploadTypeDialog();
+
     }
   }
 
@@ -1202,6 +1197,105 @@ class _StatusTemplateManagementPageState
           ],
         ),
       ),
+    );
+  }
+
+  // =========================================================
+// TEMPLATE UPLOAD TYPE DIALOG
+// =========================================================
+
+  void _showTemplateUploadTypeDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: cardColor,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+
+          title: Text(
+            'Add Template',
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              const SizedBox(height: 8),
+
+              // =================================================
+              // SINGLE TEMPLATE
+              // =================================================
+
+              _uploadTypeOption(
+                context: dialogContext,
+
+                icon: Icons.dashboard_customize_outlined,
+
+                title: 'Single Upload',
+
+                subtitle:
+                'एक template image upload करें',
+
+                onTap: () {
+                  Navigator.pop(dialogContext);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                      const TemplateFormPage(),
+                    ),
+                  ).then((result) {
+                    if (result == true) {
+                      loadItems();
+                    }
+                  });
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              // =================================================
+              // MULTIPLE TEMPLATE
+              // =================================================
+
+              _uploadTypeOption(
+                context: dialogContext,
+
+                icon: Icons.collections_outlined,
+
+                title: 'Multiple Upload',
+
+                subtitle:
+                'एक साथ कई template images upload करें',
+
+                onTap: () {
+                  Navigator.pop(dialogContext);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                      const TemplateMultipleUploadPage(),
+                    ),
+                  ).then((result) {
+                    if (result == true) {
+                      loadItems();
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -7,7 +7,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/status_model.dart';
 import '../network/api_service.dart';
-
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
 class StatusApi {
   static const String baseUrl =
       'https://dhayanmanjari.vercel.app/api';
@@ -349,14 +350,17 @@ class StatusApi {
     // =========================================
 
     request.fields['titleHi'] = titleHi;
+
     request.fields['titleEn'] = titleEn;
+
     request.fields['categoryId'] =
         categoryId.toString();
+
     request.fields['durationSeconds'] =
         durationSeconds.toString();
 
     // =========================================
-    // FILES
+    // MULTIPLE FILES
     // =========================================
 
     for (final file in media) {
@@ -371,22 +375,93 @@ class StatusApi {
         'File size: ${bytes.length} bytes',
       );
 
+      if (bytes.isEmpty) {
+        throw Exception(
+          'Unable to read file: ${file.name}',
+        );
+      }
+
+      // =======================================
+      // DETECT MIME TYPE
+      // =======================================
+
+      final mimeType =
+      lookupMimeType(file.name);
+
+      debugPrint(
+        'MIME TYPE: $mimeType',
+      );
+
+      if (mimeType == null) {
+        throw Exception(
+          'Unable to detect file type: '
+              '${file.name}',
+        );
+      }
+
+      final parts =
+      mimeType.split('/');
+
+      if (parts.length != 2) {
+        throw Exception(
+          'Invalid MIME type: $mimeType',
+        );
+      }
+
+      final mainType =
+      parts[0];
+
+      final subType =
+      parts[1];
+
+      // =======================================
+      // ONLY IMAGE / VIDEO
+      // =======================================
+
+      if (mainType != 'image' &&
+          mainType != 'video') {
+        throw Exception(
+          'Only image and video files are allowed: '
+              '${file.name}',
+        );
+      }
+
+      // =======================================
+      // HTTP CONTENT TYPE
+      // =======================================
+
+      final contentType =
+      MediaType(
+        mainType,
+        subType,
+      );
+
+      // =======================================
+      // ADD MULTIPART FILE
+      // =======================================
+
       request.files.add(
         http.MultipartFile.fromBytes(
           'media',
           bytes,
           filename: file.name,
+          contentType: contentType,
         ),
       );
-    }
 
-    debugPrint(
-      'Sending multipart request...',
-    );
+      debugPrint(
+        'Added: ${file.name} '
+            '($mimeType)',
+      );
+    }
 
     // =========================================
     // SEND
     // =========================================
+
+    debugPrint(
+      'Sending multipart request...',
+    );
 
     final streamedResponse =
     await request.send();
@@ -396,12 +471,18 @@ class StatusApi {
       streamedResponse,
     );
 
+    // =========================================
+    // RESPONSE LOG
+    // =========================================
+
     debugPrint(
-      'Response status: ${response.statusCode}',
+      'Response status: '
+          '${response.statusCode}',
     );
 
     debugPrint(
-      'Response body: ${response.body}',
+      'Response body: '
+          '${response.body}',
     );
 
     // =========================================
@@ -431,8 +512,6 @@ class StatusApi {
             decoded['message'].toString();
       }
     } catch (_) {
-      // Response JSON nahi hai.
-      // HTML/plain text ho sakta hai.
       message =
       'Server returned non-JSON response '
           '(${response.statusCode})';
