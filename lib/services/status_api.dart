@@ -300,4 +300,144 @@ class StatusApi {
       );
     }
   }
-}
+  Future<void> uploadMultipleStatus({
+    required List<XFile> media,
+    required String titleHi,
+    required String titleEn,
+    required int categoryId,
+    int durationSeconds = 0,
+  }) async {
+    if (media.isEmpty) {
+      throw Exception(
+        'At least one media file is required',
+      );
+    }
+
+    final url =
+        '${ApiConstants.baseUrl}/status/upload-multiple';
+
+    debugPrint(
+      '========================================',
+    );
+    debugPrint(
+      'MULTIPLE STATUS UPLOAD',
+    );
+    debugPrint(
+      'URL: $url',
+    );
+    debugPrint(
+      'FILES: ${media.length}',
+    );
+    debugPrint(
+      '========================================',
+    );
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse(url),
+    );
+
+    // =========================================
+    // HEADERS
+    // =========================================
+
+    request.headers['Authorization'] =
+        ApiConstants.token;
+
+    // =========================================
+    // FIELDS
+    // =========================================
+
+    request.fields['titleHi'] = titleHi;
+    request.fields['titleEn'] = titleEn;
+    request.fields['categoryId'] =
+        categoryId.toString();
+    request.fields['durationSeconds'] =
+        durationSeconds.toString();
+
+    // =========================================
+    // FILES
+    // =========================================
+
+    for (final file in media) {
+      debugPrint(
+        'Reading file: ${file.name}',
+      );
+
+      final bytes =
+      await file.readAsBytes();
+
+      debugPrint(
+        'File size: ${bytes.length} bytes',
+      );
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'media',
+          bytes,
+          filename: file.name,
+        ),
+      );
+    }
+
+    debugPrint(
+      'Sending multipart request...',
+    );
+
+    // =========================================
+    // SEND
+    // =========================================
+
+    final streamedResponse =
+    await request.send();
+
+    final response =
+    await http.Response.fromStream(
+      streamedResponse,
+    );
+
+    debugPrint(
+      'Response status: ${response.statusCode}',
+    );
+
+    debugPrint(
+      'Response body: ${response.body}',
+    );
+
+    // =========================================
+    // SUCCESS
+    // =========================================
+
+    if (response.statusCode >= 200 &&
+        response.statusCode < 300) {
+      return;
+    }
+
+    // =========================================
+    // ERROR
+    // =========================================
+
+    String message =
+        'Multiple status upload failed '
+        '(${response.statusCode})';
+
+    try {
+      final decoded =
+      jsonDecode(response.body);
+
+      if (decoded is Map &&
+          decoded['message'] != null) {
+        message =
+            decoded['message'].toString();
+      }
+    } catch (_) {
+      // Response JSON nahi hai.
+      // HTML/plain text ho sakta hai.
+      message =
+      'Server returned non-JSON response '
+          '(${response.statusCode})';
+    }
+
+    throw Exception(message);
+  }
+  }

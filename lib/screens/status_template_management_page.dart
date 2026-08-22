@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dhyanmanjari_sitepanel/screens/status_multi_upload_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -295,21 +296,8 @@ class _StatusTemplateManagementPageState
 
   void addItem() {
     if (selectedTab == 0) {
-      // =========================
-      // ADD STATUS
-      // =========================
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const StatusFormPage(),
-        ),
-      ).then((_) {
-        loadItems();
-      });
+      _showStatusUploadTypeDialog();
     } else {
-      // =========================
-      // ADD TEMPLATE
-      // =========================
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -1061,6 +1049,158 @@ class _StatusTemplateManagementPageState
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showStatusUploadTypeDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: cardColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          title: Text(
+            'Add Status',
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+
+              // ==========================
+              // SINGLE
+              // ==========================
+
+              _uploadTypeOption(
+                context: dialogContext,
+                icon: Icons.image_outlined,
+                title: 'Single Upload',
+                subtitle: 'One image or video upload करें',
+                onTap: () {
+                  Navigator.pop(dialogContext);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const StatusFormPage(),
+                    ),
+                  ).then((_) {
+                    loadItems();
+                  });
+                },
+              ),
+
+              const SizedBox(height: 12),
+
+              // ==========================
+              // MULTIPLE
+              // ==========================
+
+              _uploadTypeOption(
+                context: dialogContext,
+                icon: Icons.collections_outlined,
+                title: 'Multiple Upload',
+                subtitle: 'एक साथ कई image/video upload करें',
+                onTap: () {
+                  Navigator.pop(dialogContext);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                      const StatusMultipleUploadPage(),
+                    ),
+                  ).then((_) {
+                    loadItems();
+                  });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _uploadTypeOption({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: primaryColor.withOpacity(.06),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: primaryColor.withOpacity(.18),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: primaryColor,
+                size: 26,
+              ),
+            ),
+
+            const SizedBox(width: 14),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: subTextColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: subTextColor,
+            ),
+          ],
+        ),
       ),
     );
   }
